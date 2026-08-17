@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+docs/_build/
+
+# Virtualenvs
+venv/
+.venv*/
+.python-version
+
+# experiments_csv keeps timestamped copies of results here; the results
+# themselves are committed, so the copies are redundant.
+experiments/results_backup/
+
+.idea/
+.vscode/
+.DS_Store

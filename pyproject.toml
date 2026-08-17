@@ -1,0 +1,66 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "pabutools-recommendation"
+version = "0.1.0"
+description = "Vote prediction for participatory budgeting: an extension of pabutools implementing the recommendation system of Leibiker and Talmon (2023)"
+authors = [
+  { name = "Roei Yanku", email = "roeiyanku@gmail.com" },
+]
+license = { file = "LICENSE.md" }
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.9"
+dependencies = [
+    # The library this one extends: its Instance, Project, profiles and ballots
+    # are the input and output types throughout, and its rules elect the bundle.
+    "pabutools>=1.2.3",
+    "numpy",
+]
+
+[project.optional-dependencies]
+# The three learning-based prediction modules. They stay optional, and are
+# imported lazily, so the sampling setups, the voting rule and the pipeline all
+# work with no ML stack installed at all.
+ml = [
+    # predict_by_classification: XGBClassifier needs xgboost's sklearn API.
+    "xgboost",
+    "scikit-learn",
+    "pandas",
+    "scikit-surprise",
+    # lightfm-next is a drop-in, Python 3.12-compatible fork of LightFM.
+    "lightfm-next; python_version >= '3.12' and sys_platform != 'win32'",
+    "lightfm; python_version < '3.12'",
+]
+# Everything the scripts under experiments/ need on top of `ml`.
+experiments = [
+    "experiments-csv",
+    "matplotlib",
+    "pandas",
+]
+dev = [
+    "pytest",
+    "parameterized",
+    "coverage",
+    "Sphinx",
+    "sphinx-book-theme",
+    "sphinxcontrib-napoleon",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/roeiyanku/pabutools-recommendation"
+"Bug Tracker" = "https://github.com/roeiyanku/pabutools-recommendation/issues"
+"Paper" = "https://optlearnmas23.github.io/files/p17.pdf"
+"Extends" = "https://github.com/comsoc-community/pabutools"
