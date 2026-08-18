@@ -42,16 +42,14 @@ are pabutools' own `Instance`, `Project`, `ApprovalProfile` and
 
 ## Install
 
-```bash
-pip install pabutools-recommendation
-```
-
-Or, until it is on PyPI, straight from the repository — this line also works in
-a `requirements.txt`:
+The package is not on PyPI yet, so install it from this repository. Pip clones
+it, builds it, and pulls in `pabutools` from PyPI as a dependency:
 
 ```bash
 pip install "pabutools-recommendation @ git+https://github.com/roeiyanku/pabutools-recommendation"
 ```
+
+That exact line also works as a row in a `requirements.txt`.
 
 The three prediction modules need `xgboost`, `scikit-surprise` and `lightfm`,
 which are **not** installed by default. They come with the `ml` extra:
