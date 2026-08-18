@@ -97,9 +97,11 @@ elect(instance, lv_profile, answers, predictor="classification")
 
 Already holding complete ballots and want to know what asking less would have
 cost? `run_experiment` simulates it, and `fractional_allocation_score` scores the
-result against the full-information outcome. See [docs/usage.rst](docs/usage.rst)
-for the whole walkthrough, and [docs/reference.rst](docs/reference.rst) for the
-API.
+result against the full-information outcome.
+
+Every public function carries a docstring with worked examples, so `help()` is
+the reference — `help(pabutools_recommendation)` for the tour, or `help` on any
+individual function.
 
 ## Tests
 
