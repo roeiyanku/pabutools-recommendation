@@ -284,6 +284,23 @@ in the browser, with the logs shown alongside the result. The site's own source
 lives in [pb-recommendation-demo](https://github.com/roeiyanku/pb-recommendation-demo);
 it holds no algorithm code, only the interface.
 
+## Citation
+
+If you use this package in research, cite the paper it implements:
+
+```bibtex
+@inproceedings{leibiker2023recommendation,
+  title     = {A Recommendation System for Participatory Budgeting},
+  author    = {Leibiker, Gil and Talmon, Nimrod},
+  booktitle = {Proceedings of the 22nd International Conference on
+               Autonomous Agents and Multiagent Systems (AAMAS 2023)},
+  address   = {London, United Kingdom},
+  publisher = {IFAAMAS},
+  year      = {2023},
+  url       = {https://optlearnmas23.github.io/files/p17.pdf}
+}
+```
+
 ## License
 
 GPLv3, matching pabutools. See [LICENSE.md](LICENSE.md).
