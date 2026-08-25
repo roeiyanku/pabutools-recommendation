@@ -63,44 +63,176 @@ sampling setups, the voting rule and the pipeline all work without them.
 
 ## Quickstart
 
+A worked example, one step at a time. The snippets run as written, in order,
+and every output shown is the real one.
+
+The setting: a town is choosing between four projects. Together they cost 70,
+but only 40 can be spent. Normally you would ask every resident about all four —
+but with hundreds of projects that becomes a questionnaire nobody finishes. So
+we ask most people about **two** projects only, and predict the rest.
+
+### 1. Describe the election
+
 ```python
 from pabutools.election import Instance, Project, ApprovalProfile, ApprovalBallot
-from pabutools_recommendation import elect, offline_controversiality, partial_ballot
 
+# Project(name, cost)
 garden    = Project("Garden", 18)
 crossings = Project("Crossings", 24)
 library   = Project("Library", 16)
 shade     = Project("Shade", 12)
-instance  = Instance([garden, crossings, library, shade], budget_limit=40)
 
-# The voters who did fill in a complete ballot: what the prediction learns from.
-lv_profile = ApprovalProfile([
-    ApprovalBallot([garden, library]),
-    ApprovalBallot([crossings, shade]),
-    ApprovalBallot([garden, shade]),
-    ApprovalBallot([garden, library, shade]),
-])
-
-# Which two projects to ask everybody else about.
-offline_controversiality(instance, lv_profile, k=2)
-# {Library, Shade}  - the two the learning voters most disagree about
-
-# Their answers: approved, disapproved, and everything else left unasked.
-answers = {
-    "v5": partial_ballot(approved={garden}, disapproved={crossings}),
-    "v6": partial_ballot(approved={crossings}, disapproved={garden}),
-}
-
-elect(instance, lv_profile, answers, predictor="classification")
-# BudgetAllocation([Garden, Shade])
+# An Instance bundles the projects with the money available to fund them.
+instance = Instance([garden, crossings, library, shade], budget_limit=40)
 ```
 
-Already holding complete ballots and want to know what asking less would have
-cost? `run_experiment` simulates it, and `fractional_allocation_score` scores the
-result against the full-information outcome.
+`Instance` and `Project` are pabutools' own classes. This package does not
+replace them — it consumes them, and hands the result back to a pabutools rule
+at the end.
+
+### 2. Collect full ballots from a few voters
+
+Prediction needs something to learn from, so a minority of voters — the paper
+calls them **learning voters** — are asked about everything. Here, four of them:
+
+```python
+lv_profile = ApprovalProfile([
+    ApprovalBallot([garden, library]),
+    ApprovalBallot([garden, shade]),
+    ApprovalBallot([garden, library, shade]),
+    ApprovalBallot([garden, crossings]),
+])
+```
+
+An `ApprovalBallot` lists the projects a voter approved; anything absent is a
+project they saw and rejected. These four ballots are complete — every voter had
+an opinion on all four projects. Tallied up:
+
+| project | approvals | |
+|---|---|---|
+| Garden | 4 / 4 | everyone wants it |
+| Crossings | 1 / 4 | almost nobody does |
+| Library | 2 / 4 | evenly split |
+| Shade | 2 / 4 | evenly split |
+
+### 3. Decide which two projects to ask everyone else about
+
+This is the interesting choice, and a **sampling setup** makes it. Asking about
+Garden is close to wasted breath — all four learning voters approved it, so a
+fifth voter's answer is largely predictable. The projects worth spending a
+question on are the ones opinion actually divides:
+
+```python
+from pabutools_recommendation import offline_controversiality
+
+offline_controversiality(instance, lv_profile, k=2)
+# {Library, Shade}
+```
+
+Library and Shade each split the learning voters 2–2, which makes them the least
+predictable and so the most informative to ask about. The alternatives are
+`random_setup`, `offline_popularity` (ask about the most-approved),
+`offline_consensus` (the least divisive), and `online_adaptive_controversial`,
+which re-picks after every single answer instead of fixing the questions up
+front.
+
+### 4. Collect the partial answers
+
+Everyone else — the **target voters** — is asked only about those two projects.
+Their reply has three possible states per project, and `partial_ballot` records
+it:
+
+```python
+from pabutools_recommendation import partial_ballot
+
+answers = {
+    "v5": partial_ballot(approved={library}, disapproved={shade}),
+    "v6": partial_ballot(approved={shade},   disapproved={library}),
+}
+# Neither voter was asked about Garden or Crossings - those stay unknown.
+```
+
+That third state is the whole point. A project a voter *rejected* and a project
+they were *never shown* look identical in an ordinary approval ballot — both are
+simply absent — but they mean opposite things to a prediction model. Under the
+hood this is a pabutools `CardinalBallot` scoring +1 / −1 / 0, so no new ballot
+type had to be invented to carry it.
+
+### 5. Predict the missing votes, then elect
+
+```python
+from pabutools_recommendation import elect
+
+elect(instance, lv_profile, answers, predictor="classification")
+# [Garden, Library]
+```
+
+`elect` does three things in order:
+
+1. fits a model on the learning voters' complete ballots,
+2. uses it to fill in each target voter's unanswered projects — v5 and v6 get a
+   predicted opinion on Garden and Crossings,
+3. runs greedy approval over the now-complete profile, taking projects in order
+   of approval until the money runs out.
+
+Answers a voter actually gave are never overwritten; only the gaps are filled.
+
+The winning bundle costs 18 + 16 = 34 of the 40 available. Shade cannot join it —
+that would come to 46.
+
+Swap in `predictor="matrix_factorization"` or `"factorization_machines"` for the
+other two modules, or pass your own function with the same signature.
+
+### Sizing a real process
+
+`plan_sampling` turns a vote budget into a plan. Say you can afford 30% of all
+possible votes from 5000 voters over 100 projects, and want a tenth of those
+votes to come from complete ballots:
+
+```python
+from pabutools_recommendation import plan_sampling
+
+plan_sampling(5000, 100, sample_degree=0.3, lv_degree=0.1)
+# (150, 28)   ->  150 people fill in the whole ballot,
+#                 each of the other 4850 answers 28 questions
+```
+
+### Measuring what asking less costs you
+
+If you already hold complete ballots, `run_experiment` hides part of them,
+predicts them back, and lets you compare the result against what full
+information would have produced:
+
+```python
+from pabutools_recommendation import (
+    run_experiment, greedy_approval, fractional_allocation_score,
+)
+
+full_profile = ApprovalProfile([
+    ApprovalBallot([garden, library]),  ApprovalBallot([garden, shade]),
+    ApprovalBallot([garden, library, shade]), ApprovalBallot([garden, crossings]),
+    ApprovalBallot([garden, library]),  ApprovalBallot([garden, shade]),
+])
+
+real      = set(greedy_approval(instance, full_profile))
+predicted = set(run_experiment(instance, full_profile, 0.5, 0.5,
+                               setup="offline_controversiality", seed=17))
+
+real == predicted                                              # True
+fractional_allocation_score(real, predicted, instance.budget_limit)  # 0.85
+```
+
+Here half the votes were collected instead of all of them, and the outcome came
+out identical. The score is the cost of the correctly predicted projects as a
+share of the budget: 34 of 40.
+
+`classification_metrics` scores the predicted *votes* rather than the outcome,
+reporting precision, recall and F1 over the projects a voter was never asked
+about. `run_all_experiments` sweeps the whole grid — every setup against every
+prediction module, across a range of sampling levels.
 
 Every public function carries a docstring with worked examples, so `help()` is
-the reference — `help(pabutools_recommendation)` for the tour, or `help` on any
+the reference: `help(pabutools_recommendation)` for the tour, or `help` on any
 individual function.
 
 ## Tests
