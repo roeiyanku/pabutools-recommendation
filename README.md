@@ -1,5 +1,10 @@
 # pabutools-recommendation
 
+[![tests](https://github.com/roeiyanku/pabutools-recommendation/actions/workflows/tests.yml/badge.svg)](https://github.com/roeiyanku/pabutools-recommendation/actions/workflows/tests.yml)
+[![Python 3.9–3.13](https://img.shields.io/badge/python-3.9%E2%80%933.13-blue)](https://github.com/roeiyanku/pabutools-recommendation/actions/workflows/tests.yml)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.md)
+[![Live demo](https://img.shields.io/badge/demo-roeiyanku.csariel.xyz-brightgreen)](https://roeiyanku.csariel.xyz/)
+
 Vote prediction for participatory budgeting — an extension of
 [pabutools](https://github.com/comsoc-community/pabutools).
 

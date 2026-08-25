@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install the package with its test dependencies
+        run: pip install -e ".[dev]"
+      - name: Run the test suite
+        # Tests that fit a real model skip when their optional ML library is
+        # absent, so this exercises the always-on core on every version.
+        run: pytest -v
+
+  test-ml:
+    # The full suite, ML extras included, on one representative version.
+    # scikit-surprise builds from source; 3.11 has reliable wheels for the rest.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install the package with the ML extras
+        run: pip install -e ".[dev,ml]"
+      - name: Run the test suite
+        run: pytest -v
