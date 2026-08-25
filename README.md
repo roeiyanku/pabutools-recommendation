@@ -79,7 +79,11 @@ sampling setups, the voting rule and the pipeline all work without them.
 ## Quickstart
 
 A worked example, one step at a time. The snippets run as written, in order,
-and every output shown is the real one.
+and every output shown is the real one. It is deliberately toy-sized — four
+projects, six voters — so that every number can be checked by eye; the same
+pipeline runs unchanged on real elections ([experiments/](experiments/) pushes
+it to 480 projects, and the [demo site](https://roeiyanku.csariel.xyz/)
+generates arbitrary-size random ones).
 
 The setting: a town is choosing between four projects. Together they cost 70,
 but only 40 can be spent. Normally you would ask every resident about all four —
