@@ -40,9 +40,13 @@ ml = [
     "scikit-learn",
     "pandas",
     "scikit-surprise",
-    # lightfm-next is a drop-in, Python 3.12-compatible fork of LightFM.
+    # Factorization machines. lightfm-next is the maintained fork of LightFM,
+    # and only its 3.12/3.13 Linux and macOS wheels install reliably: the
+    # original lightfm (and both sdists) no longer build under modern
+    # setuptools. Elsewhere the extra installs without it - the predictor
+    # raises a friendly ImportError, and everything else works - and anyone
+    # who wants it can compile it by hand.
     "lightfm-next; python_version >= '3.12' and sys_platform != 'win32'",
-    "lightfm; python_version < '3.12'",
 ]
 # Everything the scripts under experiments/ need on top of `ml`.
 experiments = [

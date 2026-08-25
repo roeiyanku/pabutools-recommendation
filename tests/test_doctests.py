@@ -33,6 +33,7 @@ MODULES = (recommendation, model_training, analytics)
 DOCTEST_LIBRARY = {
     # xgboost - the classification predictor, and the examples defaulting to it.
     "_xgboost": "xgboost",
+    "_fit_one_project": "xgboost",
     "train_classification": "xgboost",
     "predict_by_classification": "xgboost",
     "complete_ballots": "xgboost",

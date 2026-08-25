@@ -25,14 +25,15 @@ jobs:
         run: pytest -v
 
   test-ml:
-    # The full suite, ML extras included, on one representative version.
-    # scikit-surprise builds from source; 3.11 has reliable wheels for the rest.
+    # The full suite, ML extras included, on one representative version:
+    # 3.12, where every ML dependency (lightfm-next included) has a wheel
+    # or a working build.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Install the package with the ML extras
         run: pip install -e ".[dev,ml]"
       - name: Run the test suite
