@@ -8,6 +8,16 @@ Vote prediction for participatory budgeting — an extension of
 **Authors:** Gil Leibiker and Nimrod Talmon (2023)
 **Programmer:** Roei Yanku
 
+### ▶ [Try it live: roeiyanku.csariel.xyz](https://roeiyanku.csariel.xyz/)
+
+An interactive demonstration — build an election or generate a random one,
+choose a sampling setup and a prediction module, and see the winning bundle, how
+it compares with the full-information outcome, the accuracy scores (precision,
+recall, F1, fractional allocation, symmetric distance) and the full logs. No
+install needed.
+Its source is in a
+[separate repository](https://github.com/roeiyanku/pb-recommendation-demo).
+
 ## What it adds
 
 Pabutools takes a **complete** profile — every voter has an opinion on every
@@ -261,6 +271,13 @@ pip install -e ".[ml,experiments]"
 python -m experiments.compare_setups     # algorithm comparison
 python -m experiments.compare_improvement  # before vs after optimisation
 ```
+
+## Demonstration site
+
+[roeiyanku.csariel.xyz](https://roeiyanku.csariel.xyz/) runs the whole pipeline
+in the browser, with the logs shown alongside the result. The site's own source
+lives in [pb-recommendation-demo](https://github.com/roeiyanku/pb-recommendation-demo);
+it holds no algorithm code, only the interface.
 
 ## License
 
